@@ -1,4 +1,4 @@
-module github.com/JackBekket/langgraphgo
+module github.com/jackbekket/langgraphgo
 
 go 1.22.0
 
