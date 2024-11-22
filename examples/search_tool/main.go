@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/jackbekket/langgraphgo/graph"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/tmc/langchaingo/tools/duckduckgo"
-	"github.com/tmc/langgraphgo/graph"
 )
 
 func main() {
