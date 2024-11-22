@@ -1,8 +1,6 @@
-module github.com/JackBekket/langgraphgo
+module github.com/jackbekket/langgraphgo
 
 go 1.22.0
-
-toolchain go1.22.2
 
 require (
 	github.com/tmc/langchaingo v0.1.12
