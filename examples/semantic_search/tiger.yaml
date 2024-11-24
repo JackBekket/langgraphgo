@@ -1,0 +1,54 @@
+# this model is UNCENSORED and have some basic programming experience, so it CAN help you to create maliciouse code, such as jailbreaks or other exploits. This model is designed for ROLEPLAY
+context_size: 8192                            
+mmap: true   
+name: tiger-gemma-9b-v1-i1
+parameters:   
+  model: huggingface://mradermacher/Tiger-Gemma-9B-v1-i1-GGUF/Tiger-Gemma-9B-v1.i1-Q4_K_M.gguf
+  # https://huggingface.co/TheDrummer/Tiger-Gemma-9B-v1
+  # https://huggingface.co/TheDrummer/Tiger-Gemma-9B-v1-GGUF
+  # https://huggingface.co/mradermacher/Tiger-Gemma-9B-v1-i1-GGUF/blob/main/Tiger-Gemma-9B-v1.i1-Q4_K_M.gguf
+stopwords:
+- <|im_end|>
+- <end_of_turn>
+- <start_of_turn>
+template:
+  chat: |
+    {{.Input }}
+    <start_of_turn>model
+  chat_message: |
+    <start_of_turn>{{if eq .RoleName "assistant"}}model{{else if eq .RoleName "system"}}system{{else if eq .RoleName "tool"}}tool{{else if eq .RoleName "user"}}user{{end}}
+    {{- if .FunctionCall }}
+    <tool_call>
+    {{- else if eq .RoleName "tool" }}
+    <tool_response>
+    {{- end }}
+    {{ if .Content -}}
+    {{.Content -}}
+    {{- end }}
+    {{- if .FunctionCall}}
+    {{toJson .FunctionCall}}
+    {{- end }}
+    {{- if .FunctionCall }}
+    </tool_call>
+    {{- else if eq .RoleName "tool" }}
+    </tool_response>
+    {{ end -}}<end_of_turn>
+  function: |
+    <start_of_turn>system
+    You are a function calling AI model. You are provided with function signatures within <tools></tools> XML tags. You may call one or more functions to assist with the user query. Don't make assumptions about what values to plug into functions. Here are the available tools:
+    <tools>
+    {{range .Functions}}
+    {'type': 'function', 'function': {'name': '{{.Name}}', 'description': '{{.Description}}', 'parameters': {{toJson .Parameters}} }}
+    {{end}}
+    </tools>
+    Use the following pydantic model json schema for each tool call you will make:
+    {'title': 'FunctionCall', 'type': 'object', 'properties': {'arguments': {'title': 'Arguments', 'type': 'object'}, 'name': {'title': 'Name', 'type': 'string'}}, 'required': ['arguments', 'name']}
+    For each function call return a json object with function name and arguments within <tool_call></tool_call> XML tags as follows:
+    <tool_call>
+    {'arguments': <args-dict>, 'name': <function-name>}
+    </tool_call><|im_end|>
+    {{.Input -}}
+    <start_of_turn>model
+    <tool_call>
+  completion: |
+    {{.Input}}

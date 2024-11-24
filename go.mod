@@ -4,11 +4,13 @@ go 1.22.3
 
 toolchain go1.22.9
 
-require github.com/tmc/langchaingo v0.1.12
+require (
+	github.com/JackBekket/hellper v0.1.4
+	github.com/tmc/langchaingo v0.1.12
+)
 
 require (
 	github.com/AssemblyAI/assemblyai-go-sdk v1.5.1 // indirect
-	github.com/JackBekket/hellper v0.1.4 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect

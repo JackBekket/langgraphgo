@@ -74,21 +74,13 @@ func main() {
         Parameters: map[string]any{
           "type": "object",
           "properties": map[string]any{
-            "searchQuery": map[string]any{
+            "query": map[string]any{
               "type":        "string",
               "description": "The search query",
             },
-            "maxResults": map[string]any{
-              "type":        "integer",
-              "description": "Maximum number of results",
-            },
-            "store": map[string]any{
-              "type":        "object",
-              "description": "Vector store",
-            },
-            "options": map[string]any{
-              "type":        "array",
-              "description": "Optional parameters for the search",
+            "name": map[string]any{
+              "type":        "string",
+              "description": "name of a document collection",
             },
           },
         },
