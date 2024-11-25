@@ -78,11 +78,11 @@ func main() {
               "type":        "string",
               "description": "The search query",
             },
-            "name": map[string]any{
+            "collection": map[string]any{                     //TODO: there should NOT exist arguments which called NAME cause it cause COLLISION with actual function name.    .....more like confusion then collision so there are no error
               "type":        "string",
-              "description": "name of a document collection",
+              "description": "name of collection store in which we perform the search",
             },
-          },
+          }, 
         },
       },
     },
@@ -114,52 +114,6 @@ func main() {
 
 
 // TOOL FUNCTIONS
- /*
-  search := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
-    lastMsg := state[len(state)-1]
-
-    for _, part := range lastMsg.Parts {
-      toolCall, ok := part.(llms.ToolCall)
-
-      if ok && toolCall.FunctionCall.Name == "search" {
-        var args struct {
-          Query string `json:"query"`
-        }
-
-        if err := json.Unmarshal([]byte(toolCall.FunctionCall.Arguments), &args); err != nil {
-          return state, err
-        }
-
-        search, err := duckduckgo.New(1, duckduckgo.DefaultUserAgent)
-        if err != nil {
-          log.Printf("search error: %v", err)
-          return state, err
-        }
-
-        toolResponse, err := search.Call(ctx, args.Query)
-        if err != nil {
-          log.Printf("search error: %v", err)
-          return state, err
-        }
-
-        msg := llms.MessageContent{
-          Role: llms.ChatMessageTypeTool,
-          Parts: []llms.ContentPart{
-            llms.ToolCallResponse{
-              ToolCallID: toolCall.ID,
-              Name:       toolCall.FunctionCall.Name,
-              Content:    toolResponse,
-            },
-          },
-        }
-
-        state = append(state, msg)
-      }
-    }
-
-    return state, nil
-  }
- */
 
   // Custom semantic search function
   semanticSearch := func(ctx context.Context, state []llms.MessageContent) ([]llms.MessageContent, error) {
@@ -175,7 +129,7 @@ func main() {
             Query string `json:"query"`
             //Store string `json:"store"`
             //Options []map[string]any `json:"options"`
-            Name string `json:"name"`
+            Collection string `json:"collection"`   //TODO: ALWAYS CHECK THIS JSON REFERENCE WHEN ALTERING VARS
           }
           if err := json.Unmarshal([]byte(toolCall.FunctionCall.Arguments), &args); err != nil {
             // Handle any errors in deserializing the arguments
@@ -187,21 +141,27 @@ func main() {
 
           //get env
           _ = godotenv.Load()
-          ai_url := os.Getenv("AI_ENDPOINT")          //TODO: should be global?
+          ai_url := os.Getenv("AI_ENDPOINT")          //TODO: should be global?   .. there are global, there might be resetting.
           api_token := os.Getenv("ADNIN_KEY")
           db_link := os.Getenv("EMBEDDINGS_DB_URL")
+
+          log.Println("Collection Name: ", args.Collection)
+          log.Println("db_link: ", db_link)
+
 
           // Retrieve your vector store based on the store value in the args
           // You'll likely need to have a method for getting the vector store based
           // on the store string ("store" value in the args)
-          store, err := embeddings.GetVectorStoreWithOptions(ai_url,api_token,db_link,args.Name) // Implement this method
+          store, err := embeddings.GetVectorStoreWithOptions(ai_url,api_token,db_link,args.Collection) // TODO: changed argument 'Name' to 'CollectionName' or something like that
           if err != nil {
             // Handle errors in retrieving the vector store
 			log.Println("error getting store")
             return state, err
           }
 
-          maxResults := 10 // Set your desired maxResults here
+          log.Println("store:", store)
+
+          maxResults := 2 // Set your desired maxResults here
           //options := args.Options // Pass in any additional options as needed
 
           // Call your SemanticSearch function here
@@ -248,22 +208,6 @@ func main() {
 
 //CONDITIONS
 
-  /*
-  //should use duck_duck_go search engine
-  shouldSearch := func(ctx context.Context, state []llms.MessageContent) string {
-    lastMsg := state[len(state)-1]
-    for _, part := range lastMsg.Parts {
-      toolCall, ok := part.(llms.ToolCall)
-
-      if ok && toolCall.FunctionCall.Name == "search" {
-        log.Printf("agent should use search")
-        return "search"
-      }
-    }
-
-    return graph.END
-  }
-  */
 
   // should use semantc search tool we defined earlier
   shouldSearchDocuments := func(ctx context.Context, state []llms.MessageContent) string {
@@ -300,7 +244,7 @@ func main() {
 
   intialState = append(
     intialState,  //TODO: check if we can somehow set collection name in initial state
-    llms.TextParts(llms.ChatMessageTypeHuman, "Collection Name: Hellper Query: How does embeddings package works?"),
+    llms.TextParts(llms.ChatMessageTypeHuman, "Collection Name: 'Hellper' Query: How does embeddings package works?"),
   )
 
   response, err := app.Invoke(context.Background(), intialState)
@@ -310,5 +254,5 @@ func main() {
   }
 
   lastMsg := response[len(response)-1]
-  log.Printf("last msg: %v", lastMsg.Parts[0]) //TODO: find out why llm answer only '<eos>` token without any completion response, error or tool call.`
+  log.Printf("last msg: %v", lastMsg.Parts[0]) 
 }
