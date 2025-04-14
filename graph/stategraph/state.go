@@ -10,7 +10,32 @@ type StateGraph struct {
     nodes map[string]Node
     edges []Edge
     entryPoint string
-    state map[string]interface{} // Состояние, в которое можно складывать переменные
+    state *State
+}
+
+type State struct {
+    data map[string]interface{}
+}
+
+// TypedDict - интерфейс для TypedDict
+type TypedDict interface {
+    Get(key string) interface{}
+    Set(key string, value interface{})
+}
+
+// NewState - создание нового State
+func NewState() *State {
+    return &State{data: make(map[string]interface{})}
+}
+
+// Get - получение значения по ключу
+func (s *State) Get(key string) interface{} {
+    return s.data[key]
+}
+
+// Set - установка значения по ключу
+func (s *State) Set(key string, value interface{}) {
+    s.data[key] = value
 }
 
 type Node struct {
