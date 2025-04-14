@@ -43,6 +43,14 @@ var (
 	ErrNoOutgoingEdge = errors.New("no outgoing edge found for node")
 )
 
+
+
+func NewStateGraph() *StateGraph {
+	return &StateGraph{
+		nodes: make(map[string]Node),
+	}
+}
+
 func (g *StateGraph) AddNode(name string, fn func(ctx context.Context, state map[string]interface{}) (map[string]interface{}, error)) {
     g.nodes[name] = Node{
         Name:     name,
